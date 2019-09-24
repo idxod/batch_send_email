@@ -1,0 +1,27 @@
+Sub 宏2()
+    Dim exwb, thiswb As Workbook
+    Dim i, j As Integer, O As String
+    Set thiswb = ThisWorkbook
+    j = thiswb.Sheets("文件名").Cells(1, 3).Value - 1
+    For i = 1 To j
+        Set exwb = Workbooks.Open(thiswb.Sheets("文件名").Cells(i + 1, 1).Value)
+        Dim exwsbb As Worksheet
+        Set exwsbb = exwb.Sheets("Sheet1")
+        O = exwb.Name
+        exwsbb.Cells(2, 2).Value = Left(exwb.Name, Len(exwb.Name) - 4)
+
+        Range("汇总").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表1商品").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表2回款").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表3角塑提成").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表4总务").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表5依视路加工费").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表6邮政快递费").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表8代销库存").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表A精配发货").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        Range("表B视觉加盟费").ListObject.QueryTable.Refresh BackgroundQuery:=False
+        exwb.Save
+        exwb.Close
+    Next
+    MsgBox "刷新成功" & i - 1 & "个文件！"
+End Sub
