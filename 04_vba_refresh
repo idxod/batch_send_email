@@ -1,0 +1,76 @@
+Dim myolapp As Object
+
+Sub Send_Mails()
+    'On Error Resume Next
+    Dim subject As String
+    Dim i As Integer
+    Dim l As Integer
+    Dim wst As Worksheet
+    Dim myitem
+    Dim y As Long
+    Dim z As String
+
+    Set wst = ThisWorkbook.ActiveSheet
+    subject = wst.Range("Subject").Value
+    Set myolapp = CreateObject("outlook.application")
+    i = wst.Range("Receiver").End(xlDown).Row - wst.Range("Receiver").Row
+    z = Len(wst.Range("Att").Offset(l, 0).Value)
+    
+    For l = 1 To i
+        Set myitem = myolapp.CreateItem(olMailItem)
+        With myitem
+            .subject = subject
+            .To = wst.Range("Receiver").Offset(l, 0)
+            .cc = wst.Range("CCer").Offset(l, 0)
+            .BodyFormat = olFormatHTML
+            .HTMLBody = MailBody(l, wst)
+           ' .display
+        
+            y = 1
+            Do
+                x = InStr(y, wst.Range("Att").Offset(l, 0).Value, ";")
+                If x = 0 And y <> 1 Then
+                    z = Mid(wst.Range("Att").Offset(l, 0).Value, y, Len(wst.Range("Att").Offset(l, 0).Value) - y + 1)
+                ElseIf x = 0 And y = 1 Then
+                    z = wst.Range("Att").Offset(l, 0).Value
+                Else
+                    z = Mid(wst.Range("Att").Offset(l, 0).Value, y, x - y)
+                End If
+                y = x + 1
+                .Attachments.Add z
+            Loop Until x = 0
+                
+            .Send
+        End With
+    Next
+        
+    'myolapp.Quit
+    Set myolapp = Nothing
+    Set myitem = Nothing
+    MsgBox ("发送完成！")
+    
+End Sub
+
+Function MailBody(l As Integer, wst As Worksheet)
+    'On Error Resume Next
+    
+    Dim wapp As Object
+    Dim wb As Object
+    Dim k As Integer
+    Dim j As Integer
+    
+    Set wapp = CreateObject("word.application")
+    Set wb = wapp.Documents.Open(wst.Range("Content").Value)
+    k = wst.Range("replace").End(xlToRight).Column - wst.Range("replace").Column
+    
+    For j = 0 To k
+        wb.Content.Find.Execute findText:=wst.Range("replace").Offset(0, j), Replacewith:=wst.Range("replace").Offset(l, j), Replace:=2
+    Next
+    MailBody = wb.Content
+    
+    wb.Close SaveChanges:=False
+    wapp.Quit
+    
+    Set wb = Nothing
+    Set wapp = Nothing
+End Function
